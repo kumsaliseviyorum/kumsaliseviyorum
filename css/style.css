@@ -1,0 +1,335 @@
+/* ===========================================================
+   Aile Hattı — stiller
+   Mobil tarayıcılarda (Android/iOS) adres çubuğu yüzünden
+   100vh'nin ekranı "buglaması" sorununu önlemek için:
+   1) --vh özel değişkeni JS ile gerçek pencere yüksekliğine göre ayarlanır
+   2) Modern tarayıcılarda 100dvh (dynamic viewport height) kullanılır
+   3) iPhone çentik/alt çubuk boşlukları için safe-area-inset kullanılır
+   =========================================================== */
+
+:root {
+  --bg: #0F1720;
+  --bg-elevated: #1B2430;
+  --bg-card: #212C3B;
+  --accent: #4FD1A5;
+  --accent-dark: #2FAE84;
+  --danger: #E85D5D;
+  --text: #EAF0F5;
+  --text-muted: #93A2B4;
+  --border: #2C3847;
+  --radius: 16px;
+  --vh: 1vh; /* JS tarafından güncellenir */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Gerçek ekran yüksekliği: önce fallback, sonra dvh destekleniyorsa o kullanılır */
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, input {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* ---------- Ekran geçişleri ---------- */
+.screen {
+  display: none;
+  height: 100%;
+  width: 100%;
+}
+.screen.active {
+  display: flex;
+}
+
+/* ---------- Giriş ekranı ---------- */
+#authScreen {
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  background: radial-gradient(circle at top, #172230 0%, var(--bg) 70%);
+  overflow-y: auto;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px;
+}
+
+.brand { text-align: center; margin-bottom: 20px; }
+.brand-mark {
+  width: 52px; height: 52px;
+  margin: 0 auto 12px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #0B1512;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 18px;
+}
+.brand-mark.small { width: 30px; height: 30px; font-size: 12px; border-radius: 9px; }
+.brand h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+.tagline { margin: 4px 0 0; color: var(--text-muted); font-size: 13px; }
+
+.auth-tabs {
+  display: flex;
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+.auth-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 10px;
+  border-radius: 9px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.auth-tab.active { background: var(--accent); color: #0B1512; }
+
+.auth-form { display: none; flex-direction: column; gap: 14px; }
+.auth-form.active { display: flex; }
+.auth-form label { font-size: 13px; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px; }
+.auth-form input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  outline: none;
+}
+.auth-form input:focus { border-color: var(--accent); }
+.auth-error { color: var(--danger); font-size: 13px; min-height: 16px; margin: 0; }
+
+.btn { border: none; border-radius: 12px; cursor: pointer; font-weight: 700; }
+.btn-primary {
+  background: var(--accent);
+  color: #0B1512;
+  padding: 13px;
+  font-size: 15px;
+}
+.btn-primary:active { background: var(--accent-dark); }
+
+/* ---------- Uygulama iskeleti ---------- */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--bg);
+}
+
+.topbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+.topbar-title { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.icon-btn {
+  background: transparent; border: none; color: var(--text-muted);
+  font-size: 18px; padding: 6px 10px; border-radius: 10px;
+}
+.icon-btn:active { background: var(--bg-card); }
+
+/* İçerik: kalan tüm alanı kapla, kendi içinde kaydırılabilir olsun.
+   Bu sayede sayfa asla toplam olarak ekrandan uzun olmaz. */
+.content {
+  flex: 1 1 auto;
+  min-height: 0; /* flex içinde taşmayı önleyen kritik satır */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.view { display: none; flex: 1; min-height: 0; flex-direction: column; }
+.view.active { display: flex; }
+
+/* ---------- Sohbet ---------- */
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.msg {
+  max-width: 78%;
+  padding: 10px 13px;
+  border-radius: 14px;
+  font-size: 14.5px;
+  line-height: 1.35;
+  word-wrap: break-word;
+}
+.msg .msg-author { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 3px; font-weight: 600; }
+.msg.mine {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #0B1512;
+  border-bottom-right-radius: 4px;
+}
+.msg.theirs {
+  align-self: flex-start;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.message-bar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+.message-bar input {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 11px 16px;
+  font-size: 15px;
+  outline: none;
+}
+.message-bar input:focus { border-color: var(--accent); }
+.btn-send {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #0B1512;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ---------- Arama / üyeler ---------- */
+#callView { padding: 16px; padding-bottom: 16px; overflow-y: auto; gap: 16px; }
+
+.family-room-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.family-room-info h2 { margin: 0 0 4px; font-size: 17px; }
+.family-room-info p { margin: 0; color: var(--text-muted); font-size: 13px; }
+.family-room-card .btn-primary { padding: 11px 18px; white-space: nowrap; }
+
+.section-label { margin: 4px 0 2px; color: var(--text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.member-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.member-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+.member-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--bg-elevated);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; flex-shrink: 0;
+}
+.member-name { font-size: 14.5px; font-weight: 600; }
+.member-status { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+.status-dot.online { background: var(--accent); }
+.btn-call {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--accent); color: #0B1512; font-size: 15px; flex-shrink: 0;
+}
+.btn-call:disabled { background: var(--border); color: var(--text-muted); }
+
+/* ---------- Alt sekme çubuğu ---------- */
+.tabbar {
+  flex: 0 0 auto;
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 10px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tab-btn.active { color: var(--accent); }
+.tab-icon { font-size: 19px; }
+
+/* ---------- Bindirmeler: gelen arama & aktif arama ---------- */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(6, 10, 15, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  padding-top: calc(24px + env(safe-area-inset-top));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 50;
+}
+.overlay.hidden { display: none; }
+
+.incoming-card, .active-call-card { text-align: center; width: 100%; max-width: 360px; }
+
+.pulse-avatar {
+  width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 18px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #0B1512;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; font-weight: 800;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79,209,165,0.45); }
+  50% { box-shadow: 0 0 0 18px rgba(79,209,165,0); }
+}
+#callerName { font-size: 17px; font-weight: 600; margin-bottom: 30px; }
+
+.incoming-actions { display: flex; justify-content: center; gap: 40px; }
+.btn-round { width: 62px; height: 62px; border-radius: 50%; font-size: 22px; }
+.btn-accept { background: var(--accent); color: #0B1512; }
+.btn-reject { background: var(--danger); color: #fff; }
+
+.active-call-label { color: var(--text-muted); font-size: 13px; text-transform:
