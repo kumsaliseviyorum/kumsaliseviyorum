@@ -1,1 +1,92 @@
+/* ===========================================================
+   Aile Hattı — stiller (WhatsApp esintili tema)
+   Mobil tarayıcılarda (Android/iOS) adres çubuğu yüzünden
+   100vh'nin ekranı "buglaması" sorununu önlemek için:
+   1) --vh özel değişkeni JS ile gerçek pencere yüksekliğine göre ayarlanır
+   2) Modern tarayıcılarda 100dvh (dynamic viewport height) kullanılır
+   3) iPhone çentik/alt çubuk boşlukları için safe-area-inset kullanılır
+   =========================================================== */
 
+:root {
+  --header: #008069;
+  --header-dark: #005c4b;
+  --chat-bg: #efeae2;
+  --bubble-mine: #d9fdd3;
+  --bubble-theirs: #ffffff;
+  --panel: #ffffff;
+  --text: #111b21;
+  --text-muted: #667781;
+  --border: #e9edef;
+  --accent: #00a884;
+  --accent-dark: #06714f;
+  --danger: #ea0038;
+  --radius: 16px;
+  --vh: 1vh; /* JS tarafından güncellenir */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--chat-bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, input {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* ---------- Ekran geçişleri ---------- */
+.screen {
+  display: none;
+  height: 100%;
+  width: 100%;
+}
+.screen.active {
+  display: flex;
+}
+
+/* ---------- Giriş ekranı ---------- */
+#authScreen {
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, var(--header) 0%, var(--header) 28%, var(--chat-bg) 28%);
+  overflow-y: auto;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 24px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+}
+
+.brand { text-align: center; margin-bottom: 20px; }
+.brand-mark {
+  width: 56px; height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 19px;
+}
+.brand-mark.small { width: 32px; height: 32px; font-size: 12px; }
+.brand h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; color: var(--text); }
+.tagline { margin: 4px 0 0; color: var(--text-muted); font-size: 13px; }
+
+.auth-tabs {
+  display: flex;
