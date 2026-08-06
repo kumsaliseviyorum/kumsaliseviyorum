@@ -1,1 +1,402 @@
+/* ===========================================================
+   Aile Hattı — stiller (WhatsApp esintili tema)
+   Mobil tarayıcılarda (Android/iOS) adres çubuğu yüzünden
+   100vh'nin ekranı "buglaması" sorununu önlemek için:
+   1) --vh özel değişkeni JS ile gerçek pencere yüksekliğine göre ayarlanır
+   2) Modern tarayıcılarda 100dvh (dynamic viewport height) kullanılır
+   3) iPhone çentik/alt çubuk boşlukları için safe-area-inset kullanılır
+   =========================================================== */
 
+:root {
+  --header: #008069;
+  --header-dark: #005c4b;
+  --chat-bg: #efeae2;
+  --bubble-mine: #d9fdd3;
+  --bubble-theirs: #ffffff;
+  --panel: #ffffff;
+  --text: #111b21;
+  --text-muted: #667781;
+  --border: #e9edef;
+  --accent: #00a884;
+  --accent-dark: #06714f;
+  --danger: #ea0038;
+  --radius: 16px;
+  --vh: 1vh; /* JS tarafından güncellenir */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--chat-bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, input {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* ---------- Ekran geçişleri ---------- */
+.screen {
+  display: none;
+  height: 100%;
+  width: 100%;
+}
+.screen.active {
+  display: flex;
+}
+
+/* ---------- Giriş ekranı ---------- */
+#authScreen {
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, var(--header) 0%, var(--header) 28%, var(--chat-bg) 28%);
+  overflow-y: auto;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 24px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+}
+
+.brand { text-align: center; margin-bottom: 20px; }
+.brand-mark {
+  width: 56px; height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 19px;
+}
+.brand-mark.small { width: 32px; height: 32px; font-size: 12px; }
+.brand h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; color: var(--text); }
+.tagline { margin: 4px 0 0; color: var(--text-muted); font-size: 13px; }
+
+.auth-tabs {
+  display: flex;
+  background: #f0f2f5;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+.auth-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.auth-tab.active { background: var(--accent); color: #fff; }
+
+.auth-form { display: none; flex-direction: column; gap: 14px; }
+.auth-form.active { display: flex; }
+.auth-form label { font-size: 13px; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px; }
+.auth-form input {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 15px;
+  outline: none;
+}
+.auth-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,168,132,0.15); }
+.auth-error { color: var(--danger); font-size: 13px; min-height: 16px; margin: 0; }
+
+.btn { border: none; border-radius: 24px; cursor: pointer; font-weight: 700; }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  padding: 13px;
+  font-size: 15px;
+  border-radius: 24px;
+}
+.btn-primary:active { background: var(--accent-dark); }
+
+/* ---------- Uygulama iskeleti ---------- */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--chat-bg);
+}
+
+.topbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  padding-top: calc(14px + env(safe-area-inset-top));
+  background: var(--header);
+  color: #fff;
+}
+.topbar-title { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+.topbar .brand-mark.small { background: rgba(255,255,255,0.2); }
+.icon-btn {
+  background: transparent; border: none; color: #fff;
+  font-size: 19px; padding: 6px 10px; border-radius: 50%;
+}
+.icon-btn:active { background: rgba(255,255,255,0.15); }
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.view { display: none; flex: 1; min-height: 0; flex-direction: column; }
+.view.active { display: flex; }
+
+/* ---------- Sohbet (WhatsApp tarzı) ---------- */
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 5%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background-color: var(--chat-bg);
+  background-image:
+    radial-gradient(rgba(0,0,0,0.035) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.msg {
+  max-width: 78%;
+  padding: 7px 9px 8px 10px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  line-height: 1.35;
+  word-wrap: break-word;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+  position: relative;
+  margin: 2px 0;
+}
+.msg .msg-author { display: block; font-size: 12.5px; color: var(--accent-dark); margin-bottom: 3px; font-weight: 700; }
+.msg.mine {
+  align-self: flex-end;
+  background: var(--bubble-mine);
+  color: var(--text);
+  border-top-right-radius: 2px;
+}
+.msg.theirs {
+  align-self: flex-start;
+  background: var(--bubble-theirs);
+  color: var(--text);
+  border-top-left-radius: 2px;
+}
+
+.message-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  background: #f0f2f5;
+}
+.message-bar input {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 12px 18px;
+  font-size: 15px;
+  outline: none;
+}
+.message-bar input:focus { border-color: var(--accent); }
+.btn-send {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.btn-send:active { background: var(--accent-dark); }
+
+/* ---------- Arama / üyeler ---------- */
+#callView { padding: 16px; padding-bottom: 16px; overflow-y: auto; gap: 16px; background: var(--panel); }
+
+.family-room-card {
+  background: #f7fdfb;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.family-room-info h2 { margin: 0 0 4px; font-size: 17px; color: var(--text); }
+.family-room-info p { margin: 0; color: var(--text-muted); font-size: 13px; }
+.family-room-card .btn-primary { padding: 11px 18px; white-space: nowrap; }
+
+.section-label { margin: 4px 0 2px; color: var(--text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.member-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: 14px; overflow: hidden; }
+.member-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--panel);
+  padding: 12px 14px;
+}
+.member-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--header));
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; flex-shrink: 0;
+}
+.member-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.member-status { font-size: 12.5px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #c7c7c7; }
+.status-dot.online { background: var(--accent); }
+.btn-call {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 15px; flex-shrink: 0;
+}
+.btn-call:disabled { background: #d8dde0; color: #fff; }
+
+/* ---------- Alt sekme çubuğu ---------- */
+.tabbar {
+  flex: 0 0 auto;
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 10px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tab-btn.active { color: var(--accent); }
+.tab-icon { font-size: 20px; }
+
+/* ---------- Bindirmeler: gelen arama & aktif arama ---------- */
+.overlay {
+  position: fixed; inset: 0;
+  background: #0b141a;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  padding-top: calc(24px + env(safe-area-inset-top));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 999;
+  color: #fff;
+}
+.overlay.hidden { display: none; }
+
+.incoming-card, .active-call-card { text-align: center; width: 100%; max-width: 360px; }
+
+.btn-round svg { width: 24px; height: 24px; pointer-events: none; }
+.call-status { color: rgba(255,255,255,0.6); font-size: 14px; margin: 0 0 26px; letter-spacing: 0.02em; }
+
+.pulse-avatar {
+  width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 18px;
+  background: linear-gradient(135deg, var(--accent), var(--header));
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; font-weight: 800;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,168,132,0.45); }
+  50% { box-shadow: 0 0 0 18px rgba(0,168,132,0); }
+}
+#callerName { font-size: 17px; font-weight: 600; margin-bottom: 30px; color: #fff; }
+
+.incoming-actions { display: flex; justify-content: center; gap: 40px; }
+.btn-round { width: 62px; height: 62px; border-radius: 50%; font-size: 22px; }
+.btn-accept { background: var(--accent); color: #fff; }
+.btn-reject { background: var(--danger); color: #fff; }
+
+.active-call-label { color: rgba(255,255,255,0.7); font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.participant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 12px;
+  margin-bottom: 34px;
+}
+.participant {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 16px 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 12px;
+  color: #fff;
+}
+.participant .avatar { width: 46px; height: 46px; font-size: 16px; }
+.participant.speaking .avatar { box-shadow: 0 0 0 3px var(--accent); }
+
+.call-controls { display: flex; justify-content: center; gap: 26px; }
+.btn-muted { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+.btn-muted.active { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-hangup { background: var(--danger); color: #fff; }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background: #212121;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 60;
+  max-width: 85%;
+  text-align: center;
+}
+.toast.hidden { display: none; }
+
+/* ---------- Küçük ekranlar (dar telefonlar) için ince ayar ---------- */
+@media (max-width: 360px) {
+  .msg { max-width: 88%; }
+  .incoming-actions { gap: 26px; }
+}
+
+/* Yatay mod: aşırı uzun kaydırmayı engelle */
+@media (orientation: landscape) and (max-height: 420px) {
+  .pulse-avatar { width: 64px; height: 64px; font-size: 22px; margin-bottom: 10px; }
+  #callerName { margin-bottom: 14px; }
+  .participant-grid { margin-bottom: 16px; }
+}
